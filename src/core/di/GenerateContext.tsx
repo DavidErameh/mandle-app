@@ -15,8 +15,7 @@ import { BrandProfileRepository } from '@/features/settings/data/repositories/Br
 import { PerformanceRepository } from '@/features/analytics/data/repositories/PerformanceRepository';
 import { NoteRepository } from '@/features/notes/data/repositories/NoteRepository';
 import { ConnectedAccountRepository } from '@/features/inspiration/data/repositories/ConnectedAccountRepository';
-import { ThreadPromptBuilder } from '@/core/ai/prompts/ThreadPromptBuilder';
-import { ExpandToThreadUseCase } from '@/features/notes/domain/useCases/ExpandToThreadUseCase';
+// Removed ThreadPromptBuilder and ExpandToThreadUseCase imports
 import { PatternRepository } from '@/features/analytics/data/repositories/PatternRepository';
 import { saveVersionUseCase } from './sharedUseCases';
 
@@ -34,7 +33,7 @@ const patternRepo = new PatternRepository();
 const contextBuilderInstance = new ContextBuilder(pillarRepo, brandRepo, perfRepo, noteRepo, accountRepo, patternRepo);
 const systemPromptBuilder = new SystemPromptBuilder();
 const promptBuilder = new GenerationPromptBuilder(systemPromptBuilder);
-const threadPromptBuilder = new ThreadPromptBuilder(systemPromptBuilder);
+// Removed threadPromptBuilder
 const polishPromptBuilder = new PolishPromptBuilder();
 const guardrailValidator = new GuardrailValidator();
 const postProcessor = new PostProcessor(guardrailValidator);
@@ -49,13 +48,7 @@ export const generateUseCaseInstance = new GenerateTweetUseCase(
   saveVersionUseCase
 );
 
-export const expandToThreadUseCaseInstance = new ExpandToThreadUseCase(
-  tweetRepo,
-  aiOrchestrator,
-  contextBuilderInstance,
-  threadPromptBuilder,
-  postProcessor
-);
+// Removed expandToThreadUseCaseInstance
 
 export const polishUseCaseInstance = new PolishTweetUseCase(
   aiOrchestrator,
@@ -68,7 +61,7 @@ export const polishUseCaseInstance = new PolishTweetUseCase(
 // Define the Interface for the Context
 interface GenerateContextType {
   generateUseCase: GenerateTweetUseCase;
-  expandToThreadUseCase: ExpandToThreadUseCase;
+  // expandToThreadUseCase removed
   polishUseCase: PolishTweetUseCase;
   contextBuilder: ContextBuilder;
 }
@@ -79,7 +72,7 @@ const GenerateContext = createContext<GenerateContextType | null>(null);
 export function GenerateProvider({ children }: { children: ReactNode }) {
   const value = {
     generateUseCase: generateUseCaseInstance,
-    expandToThreadUseCase: expandToThreadUseCaseInstance,
+    // expandToThreadUseCase removed
     polishUseCase: polishUseCaseInstance,
     contextBuilder: contextBuilderInstance
   };
@@ -103,7 +96,7 @@ export function useGenerateContext() {
 // Export use case instances for testing purposes
 export {
   generateUseCaseInstance as generateUseCase,
-  expandToThreadUseCaseInstance as expandToThreadUseCase,
+  // expandToThreadUseCaseInstance removed
   polishUseCaseInstance as polishUseCase,
   contextBuilderInstance as contextBuilder
 };

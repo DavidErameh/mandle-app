@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, SafeAreaView, ScrollView, StatusBar, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ScrollView, StatusBar, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useBrandProfile } from '../hooks/useBrandProfile';
 import { Card } from '@/shared/components/Card';
 import { Loading } from '@/shared/components/Loading';
@@ -22,11 +23,11 @@ export default function BrandSettingsScreen() {
 
   useEffect(() => {
     if (profile) {
-      setSystemPrompt(profile.systemPrompt);
-      setAllowedTopics(profile.guardrails.allowedTopics.join(', '));
-      setAvoidTopics(profile.guardrails.avoidTopics.join(', '));
-      setTone(profile.guardrails.tone);
-      setVoiceExamples(profile.voiceExamples);
+      setSystemPrompt(profile.systemPrompt || '');
+      setAllowedTopics((profile.guardrails?.allowedTopics || []).join(', '));
+      setAvoidTopics((profile.guardrails?.avoidTopics || []).join(', '));
+      setTone(profile.guardrails?.tone || '');
+      setVoiceExamples(profile.voiceExamples || []);
     }
   }, [profile]);
 
@@ -68,14 +69,14 @@ export default function BrandSettingsScreen() {
 
   if (loading || !profile) {
     return (
-      <View className="flex-1 bg-primary justify-center">
+      <View className="flex-1 bg-background-primary justify-center">
         <Loading fullScreen message="Loading settings..." />
       </View>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-primary">
+    <SafeAreaView className="flex-1 bg-background-primary">
       <StatusBar barStyle="light-content" />
       <View className="flex-row justify-between items-center px-md pt-lg pb-4">
         <Text className="text-3xl font-display text-text-primary">Settings</Text>
@@ -116,13 +117,13 @@ export default function BrandSettingsScreen() {
                 </View>
                 <View className="w-1/2 mb-3">
                   <Text className="text-text-tertiary text-[10px] uppercase">Emoji Intensity</Text>
-                  <Text className="text-text-primary text-sm font-medium">{profile.voiceAnalysis.emojiUsage}</Text>
+                  <Text className="text-text-primary text-sm font-medium">{profile.voiceAnalysis.emojiUsage || 'N/A'}</Text>
                 </View>
               </View>
               <View className="mt-2 pt-2 border-t border-accent-primary/10">
                 <Text className="text-text-tertiary text-[10px] uppercase mb-1">Common Hooks</Text>
                 <View className="flex-row flex-wrap gap-2">
-                  {profile.voiceAnalysis.hookTypes.map((h, i) => (
+                  {(profile.voiceAnalysis.hookTypes || []).map((h, i) => (
                     <View key={i} className="px-2 py-1 bg-accent-primary/10 rounded-md">
                       <Text className="text-accent-primary text-[10px] font-bold">{h}</Text>
                     </View>
@@ -178,17 +179,17 @@ export default function BrandSettingsScreen() {
               <View>
                 <View className="mb-4">
                   <Text className="font-bold text-text-primary mb-1">Allowed Topics</Text>
-                  <Text className="text-text-secondary">{profile.guardrails.allowedTopics.join(', ')}</Text>
+                  <Text className="text-text-secondary">{(profile.guardrails?.allowedTopics || []).join(', ')}</Text>
                 </View>
                 
                 <View className="mb-4">
                   <Text className="font-bold text-text-primary mb-1">Avoid Topics</Text>
-                  <Text className="text-text-secondary opacity-80">{profile.guardrails.avoidTopics.join(', ')}</Text>
+                  <Text className="text-text-secondary opacity-80">{(profile.guardrails?.avoidTopics || []).join(', ')}</Text>
                 </View>
 
                 <View>
                   <Text className="font-bold text-text-primary mb-1">Tone</Text>
-                  <Text className="text-accent font-medium">{profile.guardrails.tone}</Text>
+                  <Text className="text-accent font-medium">{profile.guardrails?.tone || 'Not set'}</Text>
                 </View>
               </View>
             )}
@@ -219,7 +220,7 @@ export default function BrandSettingsScreen() {
              </View>
           )}
 
-          {voiceExamples.map((ex, i) => (
+          {(voiceExamples ?? []).map((ex, i) => (
             <Card key={i} className="mb-2 bg-primary-tertiary border-0">
               <View className="flex-row justify-between">
                 <Text className="flex-1 text-text-secondary font-body">"{ex}"</Text>

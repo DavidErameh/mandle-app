@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, Image, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useInspiration } from '../hooks/useInspiration';
 import { Card } from '@/shared/components/Card';
 import { Button } from '@/shared/components/Button';
@@ -61,7 +62,7 @@ export default function InspirationScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-primary">
+    <SafeAreaView className="flex-1 bg-background-primary">
       <View className="flex-1 px-md pt-md">
         <View className="flex-row items-center justify-between mb-md">
           <Text className="text-display font-display text-text-primary">Inspiration</Text>

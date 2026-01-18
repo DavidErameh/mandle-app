@@ -1,10 +1,8 @@
-import { generateWithGemini } from './providers/gemini';
 import { generateWithGroq } from './providers/groq';
 import { AIGenerationError } from '@/shared/utils/errors';
 import { LoggerService } from '@/core/utils/LoggerService';
 
-const TIMEOUT_GEMINI = 8000; // 8 seconds timeout for Gemini API
-const TIMEOUT_GROQ = 5000;   // 5 seconds timeout for Groq API
+const TIMEOUT_GROQ = 15000;   // 15 seconds timeout for Groq API
 
 export class AIOrchestrator {
   async generate(prompt: string, targetCount: number = 3): Promise<string[]> {
@@ -45,49 +43,39 @@ export class AIOrchestrator {
     }
 
     try {
-      // Try Gemini first
-      LoggerService.info('AIOrchestrator', 'Calling Gemini (primary)...');
-      return await this.withTimeout(generateWithGemini(prompt), TIMEOUT_GEMINI, 'Gemini');
-    } catch (geminiError) {
-      LoggerService.warn('AIOrchestrator', `Gemini failed or timed out: ${geminiError}`);
-
-      try {
-        // Fallback to Groq
-        LoggerService.info('AIOrchestrator', 'Calling Groq (fallback)...');
-        return await this.withTimeout(generateWithGroq(prompt), TIMEOUT_GROQ, 'Groq');
-      } catch (groqError) {
-        LoggerService.error('AIOrchestrator', 'Both providers failed', groqError);
-        throw new AIGenerationError('AI generation unavailable. Check your connection.', 'All');
-      }
+      // Use Groq (So Fast!)
+      LoggerService.info('AIOrchestrator', 'Calling Groq...');
+      return await this.withTimeout(generateWithGroq(prompt), TIMEOUT_GROQ, 'Groq');
+    } catch (groqError) {
+      LoggerService.error('AIOrchestrator', 'Groq generation failed', groqError);
+      throw new AIGenerationError('AI generation unavailable. Check your connection or API key.', 'Groq');
     }
   }
 
   private parseTweets(response: string, targetCount: number = 3): string[] {
-    // Parse format: TWEET_1: [content]\nTWEET_2: [content]...
-    // Refined regex to be more robust
-    const tweets: string[] = [];
-    const lines = response.split('\n');
+    // 1. Try to parse specific TWEET_X format (most reliable)
+    // Handles: "TWEET_1:", "**TWEET_1:**", "Tweet 1:", "Tweet #1:"
+    const specificRegex = /(?:\*\*|#|\s|^)(?:TWEET|Tweet)[_\s]*\d+[:.]\s*(?:\*\*)?/i;
     
-    let currentTweet = '';
-    let capture = false;
-
-    // Simple parser for reliability over complex regex
-    for (const line of lines) {
-      if (line.match(/^TWEET_\d+:/i)) {
-        if (currentTweet) tweets.push(currentTweet.trim());
-        currentTweet = line.replace(/^TWEET_\d+:\s*/i, '');
-        capture = true;
-      } else if (capture) {
-        currentTweet += '\n' + line;
-      }
-    }
-    if (currentTweet) tweets.push(currentTweet.trim());
-
-    if (tweets.length === 0) {
-      // Fallback: if no tags found, assume the whole text is one tweet or try to split by double newline
-      return response.split(/\n\n+/).filter(t => t.length > 20).slice(0, targetCount);
-    }
+    // Split by loosely matching the header
+    const segments = response.split(specificRegex);
     
-    return tweets.slice(0, targetCount);
+    // Filter out empty segments (usually the preamble before the first tweet)
+    const tweets = segments
+      .map(s => s.trim())
+      .filter(s => s.length > 10); // Minimum tweet length check
+      
+    if (tweets.length >= targetCount) {
+      return tweets.slice(0, targetCount);
+    }
+
+    // 2. Fallback: Double newline splitting (Paragraph mode)
+    // Useful if AI ignores the tag instructions completely
+    const paragraphs = response
+      .split(/\n\n+/)
+      .map(p => p.trim())
+      .filter(p => p.length > 20 && !p.match(/^(Here is|Sure|I have generated)/i)); // Filter preambles
+
+    return paragraphs.slice(0, targetCount);
   }
 }

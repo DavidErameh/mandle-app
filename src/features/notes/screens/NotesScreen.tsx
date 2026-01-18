@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { 
   View, 
   Text, 
-  SafeAreaView, 
   FlatList, 
   StatusBar, 
   TouchableOpacity, 
   TextInput,
   RefreshControl
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNotes } from '../hooks/useNotes';
 import { NoteCard } from '../components/NoteCard';
 import { AddNoteModal } from '../components/AddNoteModal';
@@ -40,7 +40,7 @@ export default function NotesScreen() {
   const tabs: ('draft' | 'ready' | 'posted' | 'archived')[] = ['draft', 'ready', 'posted', 'archived'];
 
   return (
-    <SafeAreaView className="flex-1 bg-primary">
+    <SafeAreaView className="flex-1 bg-background-primary">
       <StatusBar barStyle="light-content" />
       
       <View className="flex-1 px-md pt-lg">

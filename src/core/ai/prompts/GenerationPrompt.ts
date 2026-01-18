@@ -22,15 +22,18 @@ Generate 3 tweet variations about: ${this.getTopicFromContext(context)}
   }
 
   private buildGuardrailsSection(guardrails: BrandProfile['guardrails'], platform: 'twitter' | 'threads'): string {
-    let [min, max] = guardrails.characterRange;
+    if (!guardrails) {
+      return `GUARDRAILS: Use best judgment for content creation.`;
+    }
+    let [min, max] = guardrails.characterRange || [50, 280];
     if (platform === 'threads' && max <= 280) max = 500;
 
     return `
 GUARDRAILS (NEVER VIOLATE):
-- Allowed topics: ${guardrails.allowedTopics.join(', ')}
-- Avoid topics: ${guardrails.avoidTopics.join(', ')}
-- Tone: ${guardrails.tone}
-- Max hashtags: ${platform === 'threads' ? 0 : guardrails.maxHashtags}
+- Allowed topics: ${(guardrails.allowedTopics || []).join(', ') || 'General'}
+- Avoid topics: ${(guardrails.avoidTopics || []).join(', ') || 'None specified'}
+- Tone: ${guardrails.tone || 'Professional'}
+- Max hashtags: ${platform === 'threads' ? 0 : (guardrails.maxHashtags || 2)}
 - Character range: ${min}-${max}
     `.trim();
   }
@@ -42,16 +45,17 @@ GUARDRAILS (NEVER VIOLATE):
       const a = profile.voiceAnalysis;
       section += `
 STYLE ANALYSIS (Follow these patterns strictly):
-- Tone: ${a.tone}
-- Sentence Structure: ${a.sentenceLength}
-- Vocabulary: ${a.vocabulary}
-- Emoji Usage: ${a.emojiUsage}
-- Common Hook patterns: ${a.hookTypes.join(', ')}
+- Tone: ${a.tone || 'Professional'}
+- Sentence Structure: ${a.sentenceLength || 'Mixed'}
+- Vocabulary: ${a.vocabulary || 'Accessible'}
+- Emoji Usage: ${a.emojiUsage || 'Minimal'}
+- Common Hook patterns: ${(a.hookTypes || []).join(', ') || 'Various'}
       `.trim() + '\n\n';
     }
 
+    const examples = profile.voiceExamples || [];
     section += `VOICE EXAMPLES (Match this style exactly):\n`;
-    section += profile.voiceExamples.slice(0, 5).map((ex, i) => `${i + 1}. "${ex}"`).join('\n');
+    section += examples.slice(0, 5).map((ex, i) => `${i + 1}. "${ex}"`).join('\n') || 'No examples provided.';
     
     return section.trim();
   }

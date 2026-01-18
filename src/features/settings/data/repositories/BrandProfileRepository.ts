@@ -78,7 +78,8 @@ export class BrandProfileRepository {
   async saveProfile(profile: Partial<BrandProfile>): Promise<void> {
     const db = SQLiteService.getDB();
     const now = new Date().toISOString();
-    const id = profile.id || 'user_brand';
+    // Use provided id, or generate a proper UUID (Supabase requires UUID format)
+    const id = profile.id || crypto.randomUUID();
 
     try {
       // 1. Save Local
@@ -87,7 +88,7 @@ export class BrandProfileRepository {
           [id, profile.systemPrompt || '', JSON.stringify(profile.guardrails || {}), JSON.stringify(profile.voiceExamples || []), JSON.stringify(profile.voiceAnalysis || {}), now]
       );
 
-      // 2. Sync Remote
+      // 2. Sync Remote (omit created_at as Supabase table may not have it)
       const { error } = await supabase.from('brand_profile').upsert({
          id: id,
          user_id: (await supabase.auth.getUser()).data.user?.id,
@@ -95,7 +96,7 @@ export class BrandProfileRepository {
          guardrails: profile.guardrails,
          voice_examples: profile.voiceExamples,
          voice_analysis: profile.voiceAnalysis,
-         created_at: now
+         updated_at: now
       });
 
       if (error) console.error('Supabase Profile Save Error:', error);

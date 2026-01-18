@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, SafeAreaView, StatusBar, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ScrollView, StatusBar, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Clipboard from 'expo-clipboard';
 import clsx from 'clsx';
 import { useOnline } from '@/shared/hooks/useOnline';
@@ -19,7 +20,7 @@ import { PolishModal } from '../components/PolishModal';
 
 export default function HomeScreen() {
   const isOnline = useOnline();
-  const { generate, loading, error, tweets, poolSize, platform, setPlatform } = useGenerate();
+  const { generate, loading, error, tweets, poolSize, platform } = useGenerate();
   const { logPerformance, getPerformanceLogs } = useCollaboration();
   const { extractPattern } = useAnalytics();
   const [selectedTweet, setSelectedTweet] = useState<Tweet | null>(null);
@@ -121,7 +122,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-primary">
+    <SafeAreaView className="flex-1 bg-background-primary">
       <StatusBar barStyle="light-content" />
       <ScrollView className="flex-1 px-md pt-lg" contentContainerStyle={{ paddingBottom: 150 }}>
         <Animated.View entering={FadeInUp.delay(200)}>
@@ -135,28 +136,7 @@ export default function HomeScreen() {
         </Animated.View>
 
         {/* Platform Selector */}
-        <Animated.View entering={FadeInUp.delay(300)} className="mb-lg">
-          <View className="bg-primary-tertiary p-1 rounded-2xl flex-row">
-            <TouchableOpacity 
-              onPress={() => setPlatform('twitter')}
-              className={clsx(
-                "flex-1 py-3 rounded-xl flex-row justify-center items-center",
-                platform === 'twitter' ? "bg-accent-primary shadow-glow" : "bg-transparent"
-              )}
-            >
-              <Text className={clsx("font-bold", platform === 'twitter' ? "text-white" : "text-text-tertiary")}>X / Twitter</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              onPress={() => setPlatform('threads')}
-              className={clsx(
-                "flex-1 py-3 rounded-xl flex-row justify-center items-center",
-                platform === 'threads' ? "bg-white shadow-glow" : "bg-transparent"
-              )}
-            >
-              <Text className={clsx("font-bold", platform === 'threads' ? "text-black" : "text-text-tertiary")}>Threads</Text>
-            </TouchableOpacity>
-          </View>
-        </Animated.View>
+        {/* Platform Selector Removed */}
 
         <Animated.View entering={FadeInUp.delay(400)}>
           <Button 

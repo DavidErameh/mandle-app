@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, SafeAreaView, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/shared/components/Button';
 import { TextInput } from '@/shared/components/TextInput';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -36,7 +37,7 @@ export default function SystemPromptScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-primary">
+    <SafeAreaView className="flex-1 bg-background-primary">
       <View className="flex-1 px-lg pt-lg">
         <Text className="text-h2 font-display text-text-primary mb-2">System Prompt</Text>
         <Text className="text-body text-text-secondary mb-lg">

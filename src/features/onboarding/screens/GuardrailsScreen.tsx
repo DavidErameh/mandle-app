@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, SafeAreaView, Switch, ScrollView } from 'react-native';
+import { View, Text, Switch, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/shared/components/Button';
 import { OnboardingService } from '@/core/settings/OnboardingService';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -29,9 +30,8 @@ export default function GuardrailsScreen() {
          await pillarRepo.saveAll(pillars);
        }
        
-       // 2. Save Brand Profile
-       const profile = {
-         id: 'user_brand', 
+       // 2. Save Brand Profile (id will be auto-generated as UUID by repository)
+       const profile = { 
          systemPrompt: systemPrompt || 'You are an helpful AI assistant.', // Default fallback
          guardrails: {
            allowedTopics: pillars?.map((p: any) => p.name) || [],
@@ -63,7 +63,7 @@ export default function GuardrailsScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-primary">
+    <SafeAreaView className="flex-1 bg-background-primary">
       <View className="flex-1 px-lg pt-lg">
         <Text className="text-h2 font-display text-text-primary mb-2">Guardrails</Text>
         <Text className="text-body text-text-secondary mb-lg">

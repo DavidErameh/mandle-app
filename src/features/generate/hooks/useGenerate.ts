@@ -12,7 +12,8 @@ export function useGenerate() {
   const [error, setError] = useState<string | null>(null);
   const [tweets, setTweets] = useState<Tweet[]>([]);
   const [poolSize, setPoolSize] = useState<number>(0);
-  const [platform, setPlatform] = useState<'twitter' | 'threads'>('twitter');
+  const platform = 'twitter'; // Enforce Twitter only
+  // const [platform, setPlatform] = useState<'twitter' | 'threads'>('twitter');
   
   // Consume dependencies from Context
   const { generateUseCase, contextBuilder } = useGenerateContext();
@@ -53,5 +54,5 @@ export function useGenerate() {
     }
   }, [generateUseCase, refreshPool, platform]); 
 
-  return { generate, loading, error, tweets, poolSize, refreshPool, platform, setPlatform };
+  return { generate, loading, error, tweets, poolSize, refreshPool, platform };
 }

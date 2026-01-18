@@ -1,19 +1,17 @@
 // Polyfills must be imported first
 import './src/polyfills';
+// NativeWind v4 requires global CSS import
+import './global.css';
 
 import React, { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { NavigationContainer } from '@react-navigation/native';
 import RootNavigator from './src/navigation/RootNavigator';
 import { useFonts } from 'expo-font';
 
-import { GenerateProvider } from '@/core/di/GenerateContext';
-import { InspirationProvider } from '@/core/di/InspirationContext';
-import { NotesProvider } from '@/core/di/NotesContext';
-import { CollaborationProvider } from '@/core/di/CollaborationContext';
-import { AnalyticsProvider } from '@/core/di/AnalyticsContext';
-import { useSync } from '@/shared/hooks/useSync';
 import { SQLiteService } from '@/core/database/sqlite';
 
 import { Loading } from '@/shared/components/Loading';
@@ -46,8 +44,6 @@ export default function App() {
     initDB();
   }, []);
 
-  useSync();
-
   // Show loading while fonts or database are initializing
   if (!fontsLoaded && !fontError) {
     return (
@@ -70,22 +66,17 @@ export default function App() {
   }
 
   return (
-    <SafeAreaProvider>
-      <AppErrorBoundary>
-        <AnalyticsProvider>
-          <GenerateProvider>
-            <InspirationProvider>
-              <NotesProvider>
-                <CollaborationProvider>
-                  <RootNavigator />
-                </CollaborationProvider>
-              </NotesProvider>
-            </InspirationProvider>
-          </GenerateProvider>
-        </AnalyticsProvider>
-      </AppErrorBoundary>
-      <StatusBar style="light" />
-    </SafeAreaProvider>
+// Wrapped in GestureHandlerRootView for generic support
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <AppErrorBoundary>
+          <NavigationContainer>
+            <RootNavigator />
+          </NavigationContainer>
+        </AppErrorBoundary>
+        <StatusBar style="light" />
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 

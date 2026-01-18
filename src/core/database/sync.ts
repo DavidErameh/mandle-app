@@ -175,7 +175,8 @@ export class SyncService {
       'versions',
       'sync_queue',
       'performance_logs',
-      'patterns'
+      'patterns',
+      'drafts'
     ];
 
     return allowedTables.includes(tableName);

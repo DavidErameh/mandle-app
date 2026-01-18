@@ -4,11 +4,24 @@
     "strict": true,
     "baseUrl": "./src",
     "paths": {
-      "@/*": ["./*"],
-      "@components/*": ["./shared/components/*"],
-      "@features/*": ["./features/*"],
-      "@core/*": ["./core/*"]
+      "@/*": [
+        "./*"
+      ],
+      "@components/*": [
+        "./shared/components/*"
+      ],
+      "@features/*": [
+        "./features/*"
+      ],
+      "@core/*": [
+        "./core/*"
+      ]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", "src/types/**/*.d.ts"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "src/types/**/*.d.ts",
+    "nativewind-env.d.ts"
+  ]
 }

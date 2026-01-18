@@ -1,17 +1,25 @@
+
 import React from 'react';
 import { View, Text, Platform } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { BlurView } from 'expo-blur';
+import { ShareIntentProvider } from 'expo-share-intent';
 import { SparklesIcon, DocumentTextIcon, Cog6ToothIcon, LightBulbIcon, ChartBarIcon } from 'react-native-heroicons/outline';
 import { SparklesIcon as SparklesSolid, DocumentTextIcon as DocumentSolid, Cog6ToothIcon as CogSolid, LightBulbIcon as LightBulbSolid, ChartBarIcon as ChartBarSolid } from 'react-native-heroicons/solid';
+
+import { GenerateProvider } from '@/core/di/GenerateContext';
+import { InspirationProvider } from '@/core/di/InspirationContext';
+import { NotesProvider } from '@/core/di/NotesContext';
+import { CollaborationProvider } from '@/core/di/CollaborationContext';
+import { AnalyticsProvider } from '@/core/di/AnalyticsContext';
 
 // Screens
 import HomeScreen from '@/features/generate/screens/HomeScreen';
 import InspirationScreen from '@/features/inspiration/screens/InspirationScreen';
+import ShareHandler from '@/features/inspiration/screens/ShareHandler';
 import NotesScreen from '@/features/notes/screens/NotesScreen';
-import ThreadExpandScreen from '@/features/notes/screens/ThreadExpandScreen';
+// import ThreadExpandScreen removed
 import BrandSettingsScreen from '@/features/settings/screens/BrandSettingsScreen';
 import InsightsScreen from '@/features/analytics/screens/InsightsScreen';
 
@@ -99,6 +107,7 @@ function TabNavigator() {
 import { OnboardingService } from '@/core/settings/OnboardingService';
 import OnboardingNavigator from '@/features/onboarding/navigation/OnboardingNavigator';
 import { Loading } from '@/shared/components/Loading';
+import { SyncService } from '@/core/database/sync';
 
 // ... (keep Platform import if needed, but remove if unused or imported above)
 
@@ -109,31 +118,53 @@ export default function RootNavigator() {
     checkOnboarding();
   }, []);
 
+  // Process sync queue - deferred to ensure navigation context is ready
+  React.useEffect(() => {
+    // Slight delay to ensure navigation is fully mounted before sync operations
+    const timer = setTimeout(() => {
+      SyncService.processQueue();
+    }, 150);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
   const checkOnboarding = async () => {
     const status = await OnboardingService.isOnboarded();
     setIsOnboarded(status);
   };
 
-  if (isOnboarded === null) {
-    return (
-      <View className="flex-1 bg-primary justify-center items-center">
-        <Loading message="Initializing..." />
-      </View>
-    );
-  }
-
+  // Wrap everything in ShareIntentProvider and other providers (NavigationContainer is now in App.tsx)
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade' }}>
-        {!isOnboarded ? (
-          <Stack.Screen name="Onboarding" component={OnboardingNavigator} />
-        ) : (
-          <>
-            <Stack.Screen name="Main" component={TabNavigator} />
-            <Stack.Screen name="ThreadExpand" component={ThreadExpandScreen} />
-          </>
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <ShareIntentProvider>
+      <AnalyticsProvider>
+        <GenerateProvider>
+          <InspirationProvider>
+            <NotesProvider>
+              <CollaborationProvider>
+                <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade' }}>
+                  {isOnboarded === null ? (
+                    <Stack.Screen name="Loading">
+                      {() => <View className="flex-1 bg-background-primary justify-center items-center"><Loading message="Initializing..." /></View>}
+                    </Stack.Screen>
+                  ) : !isOnboarded ? (
+                    <Stack.Screen name="Onboarding" component={OnboardingNavigator} />
+                  ) : (
+                    <>
+                      <Stack.Screen name="Main" component={TabNavigator} />
+                      {/* ThreadExpand route removed */}
+                      <Stack.Screen 
+                        name="ShareHandler" 
+                        component={ShareHandler}
+                        options={{ presentation: 'modal' }}
+                      />
+                    </>
+                  )}
+                </Stack.Navigator>
+              </CollaborationProvider>
+            </NotesProvider>
+          </InspirationProvider>
+        </GenerateProvider>
+      </AnalyticsProvider>
+    </ShareIntentProvider>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/shared/components/Button';
 import { TextInput } from '@/shared/components/TextInput';
 import { useNavigation } from '@react-navigation/native';
@@ -68,7 +69,7 @@ export default function PillarSetupScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-primary">
+    <SafeAreaView className="flex-1 bg-background-primary">
       <View className="flex-1 px-lg pt-lg">
         <Text className="text-h2 font-display text-text-primary mb-2">Content Pillars</Text>
         <Text className="text-body text-text-secondary mb-lg">
